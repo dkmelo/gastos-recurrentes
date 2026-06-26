@@ -1,0 +1,55 @@
+{
+    "contracts": [
+        {
+            "ID Contrato": "CON-101",
+            "NIT": "123456789-0",
+            "Monto": 100.0,
+            "Fecha Inicio": "2026-01-01",
+            "Fecha Fin": "2026-12-31",
+            "Razon Social": "Internet S.A.",
+            "Concepto": "Plan Fibra",
+            "Estado": "Activo"
+        },
+        {
+            "ID Contrato": "CON-102",
+            "NIT": "987654321-1",
+            "Monto": 500.0,
+            "Fecha Inicio": "2025-06-01",
+            "Fecha Fin": "2026-06-20",
+            "Razon Social": "Hosting Solutions",
+            "Concepto": "Cloud VPS",
+            "Estado": "Activo"
+        },
+        {
+            "ID Contrato": "CON-103",
+            "NIT": "555555555-5",
+            "Monto": 50.0,
+            "Fecha Inicio": "2026-01-01",
+            "Fecha Fin": "2026-05-15",
+            "Razon Social": "Mail Services",
+            "Concepto": "Email Marketing",
+            "Estado": "Activo"
+        },
+        {
+            "ID Contrato": "CON-104",
+            "NIT": "222222222-2",
+            "Monto": 200.0,
+            "Fecha Inicio": "2026-01-01",
+            "Fecha Fin": "2026-07-05",
+            "Razon Social": "Dev Tools",
+            "Concepto": "Licencias IDE",
+            "Estado": "Activo"
+        },
+        {
+            "ID Contrato": "CON-105",
+            "NIT": "333333333-3",
+            "Monto": 1000.0,
+            "Fecha Inicio": "2025-01-01",
+            "Fecha Fin": "2025-12-31",
+            "Razon Social": "SaaS Premium",
+            "Concepto": "Enterprise CRM",
+            "Estado": "Inactivo"
+        }
+    ],
+    "history": []
+}

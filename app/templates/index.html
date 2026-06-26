@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GastosRecurrentes - Panel Administrativo HITL</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 25, 40, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-primary: #8b5cf6; /* Violet */
+            --accent-secondary: #a78bfa;
+            --accent-glow: rgba(139, 92, 246, 0.15);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --error: #ef4444;
+            --error-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Scrollbar Premium Moderno */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 15, 25, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 6px;
+            border: 2px solid var(--bg-color);
+            transition: all 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title .logo {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--accent-secondary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .header-title h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 40%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.1rem;
+            font-weight: 300;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 12px var(--success); }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Grid Layout */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 1.9fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Cards styling (Glassmorphism) */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 21px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent, rgba(255, 255, 255, 0.02));
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+        }
+
+        .card-header h2 i {
+            color: var(--accent-secondary);
+        }
+
+        /* Badge design */
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); }
+        .badge-warning { background: var(--warning-glow); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-success { background: var(--success-glow); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-error { background: var(--error-glow); color: var(--error); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        /* Left Column: Interventions List */
+        .pending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 0.2rem;
+        }
+
+        .pending-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .pending-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .pending-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pending-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--warning);
+            opacity: 0.8;
+        }
+
+        .pending-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(245, 158, 11, 0.3);
+            transform: translateX(4px);
+        }
+
+        .pending-card.active-selected {
+            background: rgba(139, 92, 246, 0.06);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateX(4px);
+        }
+
+        .pending-card.active-selected::after {
+            background: var(--accent-primary);
+        }
+
+        .pending-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pending-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.4rem;
+        }
+
+        .pending-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .no-pending-placeholder {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .no-pending-placeholder i {
+            font-size: 2.5rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .no-pending-placeholder h3 {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 0.4rem;
+        }
+
+        /* Right Column: Execution Monitor */
+        .monitor-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 480px;
+        }
+
+        .monitor-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 3rem;
+        }
+
+        .monitor-placeholder svg {
+            width: 80px;
+            height: 80px;
+            stroke: rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .monitor-placeholder h3 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Flow Diagram styling */
+        .execution-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .flow-node {
+            display: flex;
+            gap: 1.2rem;
+            position: relative;
+        }
+
+        .flow-node::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 36px;
+            bottom: -24px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1;
+        }
+
+        .flow-node:last-child::before {
+            display: none;
+        }
+
+        .node-indicator {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #111827;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .flow-node.active .node-indicator {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .flow-node.success-state .node-indicator {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .flow-node.error-state .node-indicator {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .node-info {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+        }
+
+        .node-info h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .node-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* HITL Alert Panels */
+        .hitl-alert-panel {
+            background: rgba(245, 158, 11, 0.04);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .hitl-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--warning);
+            margin-bottom: 0.75rem;
+        }
+
+        .hitl-alert-header svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .hitl-alert-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .hitl-message-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #d1d5db;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Inputs & Switches in HITL */
+        .switch-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .switch-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* Buttons styles */
+        .decision-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #6d28d9 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-reject {
+            background: var(--error);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Action tabs for expirations */
+        .vencimiento-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .btn-action-tab {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-tab:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+        }
+
+        .btn-action-tab.selected {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--accent-primary);
+            color: var(--accent-secondary);
+        }
+
+        /* Tables section */
+        .table-section {
+            margin-top: 2rem;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1.25rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-secondary);
+            border-bottom-color: var(--accent-primary);
+            background: rgba(139, 92, 246, 0.02);
+        }
+
+        .table-container {
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d1d5db;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Security Alert Toasts */
+        .security-toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+        }
+
+        .security-toast {
+            background: rgba(239, 68, 68, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 14px;
+            padding: 1.25rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(239, 68, 68, 0.15);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .security-toast-icon {
+            color: #ef4444;
+            font-size: 1.4rem;
+            margin-top: 0.1rem;
+        }
+
+        .security-toast-content {
+            flex-grow: 1;
+        }
+
+        .security-toast-title {
+            font-weight: 750;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #f87171;
+        }
+
+        .security-toast-desc {
+            font-size: 0.8rem;
+            color: #fecaca;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .security-toast-details {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        .security-toast-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .security-toast-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="security-toast-container" class="security-toast-container"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <div class="logo" style="padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <img src="/logo.png" alt="Logo GastosRecurrentes" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                </div>
+                <div>
+                    <h1>Panel Administrativo HITL</h1>
+                    <p>Cuentas por pagar • Control de auditoría de contratos & gastos recurrentes</p>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <span>Agente Escuchando Webhook (8080)</span>
+            </div>
+        </header>
+
+        <!-- Grid Principal -->
+        <div class="grid-layout">
+            
+            <!-- Columna Izquierda: Listado de Intervenciones Manuales -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-bell-on"></i> Tareas Pendientes (HITL)</h2>
+                    <span id="pending-count" class="badge badge-warning">0</span>
+                </div>
+
+                <div class="pending-list" id="pending-sessions-container">
+                    <!-- Cargando... -->
+                    <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                        <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <p style="font-size: 0.85rem;">Buscando intervenciones pendientes...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Monitor / Detalle de Intervención -->
+            <div class="glass-card monitor-container">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-desktop"></i> Monitor de Resolución en Tiempo Real</h2>
+                    <span id="process-badge" class="badge badge-secondary">Inactivo</span>
+                </div>
+
+                <div id="monitor-content" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="monitor-placeholder" id="placeholder">
+                        <svg fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <h3>Ninguna Tarea Seleccionada</h3>
+                        <p style="font-size: 0.85rem; margin-top: 5px; max-width: 400px; line-height: 1.4;">Cuando emitas una factura desde el Portal del Proveedor (8181) que requiera verificación, aparecerá una alerta a la izquierda. Selecciónala para resolverla aquí.</p>
+                    </div>
+                    
+                    <div class="execution-flow" id="flow-display" style="display: none; flex-grow: 1;">
+                        <!-- Nodos cargados dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Secciones de Datos (Contratos e Historial) -->
+        <div class="glass-card table-section">
+            <div class="tabs-header">
+                <button class="tab-btn active" id="tab-contracts" onclick="switchTab('contracts')">Base de Datos: Contratos Activos</button>
+                <button class="tab-btn" id="tab-history" onclick="switchTab('history')">Historial de Auditoría de Aprobaciones</button>
+            </div>
+
+            <!-- Tabla de Contratos -->
+            <div id="contracts-view" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Contrato</th>
+                            <th>NIT</th>
+                            <th>Razón Social</th>
+                            <th>Concepto</th>
+                            <th>Monto Ref</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                            <th>Análisis</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contracts-table-body">
+                        <!-- Renderizado por JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tabla de Historial -->
+            <div id="history-view" class="table-container" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha Registro</th>
+                            <th>ID Contrato</th>
+                            <th>NIT</th>
+                            <th>Valor Facturado</th>
+                            <th>Fecha Factura</th>
+                            <th>Estado de Aprobación</th>
+                            <th>Detalles / Comentarios</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- Renderizado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        
+        let activeSessionId = null;
+        let activeInterruptId = null;
+        let activeReviewType = null;
+        let selectedVencimientoAction = "renovar";
+        let pendingSessionsList = [];
+
+        // Cambiar pestañas inferiores (Contratos vs Historial)
+        function switchTab(tab) {
+            document.getElementById('tab-contracts').className = tab === 'contracts' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-history').className = tab === 'history' ? 'tab-btn active' : 'tab-btn';
+            
+            document.getElementById('contracts-view').style.display = tab === 'contracts' ? 'block' : 'none';
+            document.getElementById('history-view').style.display = tab === 'history' ? 'block' : 'none';
+            
+            if (tab === 'history') loadHistory();
+            else loadContracts();
+        }
+
+        // Cargar Contratos de Google Sheets
+        async function loadContracts() {
+            try {
+                const res = await fetch(`${API_URL}/contracts`);
+                const contracts = await res.json();
+                const tbody = document.getElementById('contracts-table-body');
+                tbody.innerHTML = '';
+                
+                contracts.forEach(c => {
+                    const statusClass = c.Estado === "Activo" ? "badge-success" : "badge-secondary";
+                    
+                    // Lógica para determinar si está vencido o próximo a vencer (<= 15 días)
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    
+                    // Parsear Fecha Fin en formato YYYY-MM-DD local
+                    const parts = c["Fecha Fin"].split('-');
+                    const fechaFin = new Date(parts[0], parts[1] - 1, parts[2]);
+                    fechaFin.setHours(0,0,0,0);
+                    
+                    const diffTime = fechaFin - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let expiradoLabel = '';
+                    if (diffDays < 0) {
+                        expiradoLabel = `<span style="color:var(--error); font-size:11px; margin-left:5px;">(Vencido)</span>`;
+                    } else if (diffDays >= 0 && diffDays <= 15 && c.Estado === "Activo") {
+                        expiradoLabel = `<span style="color:#f59e0b; font-size:11px; margin-left:5px;">(Próximo a vencer)</span>`;
+                    }
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight:600; color:var(--accent-secondary);">${c["ID Contrato"]}</td>
+                            <td>${c.NIT}</td>
+                            <td style="font-weight:500; color:white;">${c["Razon Social"]}</td>
+                            <td>${c.Concepto}</td>
+                            <td style="font-weight:600; color:white;">$${c.Monto.toFixed(2)}</td>
+                            <td>${c["Fecha Fin"]}${expiradoLabel}</td>
+                            <td><span class="badge ${statusClass}">${c.Estado}</span></td>
+                            <td>
+                                <span style="font-size:11px; color:var(--text-secondary); opacity:0.85;">
+                                    Margen: $${(c.Monto * 0.95).toFixed(1)} - $${(c.Monto * 1.05).toFixed(1)}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error cargando contratos", e);
+            }
+        }
+
+        // Cargar Historial de Aprobaciones de Google Sheets
+        async function loadHistory() {
+            try {
+                const res = await fetch(`${API_URL}/history`);
+                const history = await res.json();
+                const tbody = document.getElementById('history-table-body');
+                tbody.innerHTML = '';
+                
+                // Mostrar los más recientes primero
+                history.reverse().forEach(h => {
+                    let badgeClass = "badge-success";
+                    if (h["Estado Aprobación"].toLowerCase().includes("rechaz")) badgeClass = "badge-error";
+                    if (h["Estado Aprobación"].toLowerCase().includes("bloque")) badgeClass = "badge-error";
+                    if (h["Estado Aprobación"].toLowerCase().includes("revis")) badgeClass = "badge-warning";
+                    
+                    const meta = h.Metadata || {};
+                    const desvioText = meta.desvio ? `Desvío: ${meta.desvio}. ` : '';
+                    const commentText = meta.comentario ? `"${meta.comentario}". ` : '';
+                    const actionText = meta.action_taken ? `Acción: ${meta.action_taken}. ` : '';
+                    const detailText = desvioText + commentText + actionText;
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-secondary);">${new Date(h["Fecha Evento"]).toLocaleString()}</td>
+                            <td style="font-weight:600; color:var(--accent-secondary);">${h["ID Contrato"]}</td>
+                            <td>${h.NIT}</td>
+                            <td style="font-weight:600; color:white;">$${h["Valor Factura"].toFixed(2)}</td>
+                            <td>${h["Fecha Factura"]}</td>
+                            <td><span class="badge ${badgeClass}">${h["Estado Aprobación"]}</span></td>
+                            <td>${detailText || "-"}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error("Error cargando historial", e);
+            }
+        }
+
+        // POLLING de Sesiones Suspendidas (HITL) y Bloqueos de Seguridad
+        let currentBlockedIds = new Set();
+        let dismissedBlockedIds = new Set();
+ 
+        async function pollPendingSessions() {
+            try {
+                const res = await fetch(`${API_URL}/pending`);
+                const data = await res.json();
+                
+                const pending = data.pending || [];
+                const blocked = data.blocked || [];
+                
+                pendingSessionsList = pending;
+                
+                const container = document.getElementById('pending-sessions-container');
+                const countBadge = document.getElementById('pending-count');
+                
+                countBadge.textContent = pending.length;
+                
+                // --- Renderizar Notificaciones de Seguridad (Blocked Events) ---
+                renderBlockedToasts(blocked);
+                
+                if (pending.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-pending-placeholder">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <h3>Todo al día</h3>
+                            <p style="font-size: 0.8rem;">No hay interacciones manuales pendientes de aprobación.</p>
+                        </div>
+                    `;
+                    // Si la sesión activa seleccionada ya no está en la lista de pendientes (porque se resolvió)
+                    if (activeSessionId && !pending.some(s => s.session_id === activeSessionId)) {
+                        resetMonitor();
+                    }
+                    return;
+                }
+                
+                let html = '';
+                pending.forEach((session, index) => {
+                    const isSelected = activeSessionId === session.session_id ? 'active-selected' : '';
+                    const schemaProps = session.response_schema.properties || {};
+                    const isExp = schemaProps.accion !== undefined;
+                    const typeLabel = isExp ? 'Vencimiento' : 'Desvío de Monto';
+                    const icon = isExp ? 'fa-calendar-day' : 'fa-hand-holding-dollar';
+                    const payload = session.payload || {};
+                    
+                    html += `
+                        <div class="pending-card ${isSelected}" onclick="selectPendingSessionByIndex(${index})">
+                            <div class="pending-meta">
+                                <span><i class="fa-solid ${icon}"></i> ${typeLabel}</span>
+                                <span style="font-family:'JetBrains Mono';">${session.session_id.substring(0, 8)}</span>
+                            </div>
+                            <div class="pending-title">Contrato: ${payload.id_contrato || 'N/A'}</div>
+                            <div class="pending-desc">${session.message}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                
+            } catch (e) {
+                console.error("Error polling pending sessions", e);
+            }
+        }
+ 
+        function selectPendingSessionByIndex(index) {
+            if (pendingSessionsList[index]) {
+                selectPendingSession(pendingSessionsList[index]);
+            }
+        }
+ 
+        function renderBlockedToasts(blocked) {
+            const container = document.getElementById('security-toast-container');
+            
+            // Recorrer los eventos bloqueados actuales
+            blocked.forEach(evt => {
+                // Si ya fue descartada localmente, no mostrarla nunca más
+                if (dismissedBlockedIds.has(evt.id)) {
+                    return;
+                }
+                
+                if (!currentBlockedIds.has(evt.id)) {
+                    currentBlockedIds.add(evt.id);
+                    
+                    const toast = document.createElement('div');
+                    toast.className = 'security-toast';
+                    toast.id = `toast-${evt.id}`;
+                    
+                    toast.innerHTML = `
+                        <div class="security-toast-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="security-toast-content">
+                            <div class="security-toast-title">
+                                <span>🛡️ AMENAZA DETECTADA Y RECHAZADA (GEMINI SECURE)</span>
+                            </div>
+                            <div class="security-toast-desc" style="font-weight: 600; color: #ff6b6b; margin-bottom: 10px; font-size: 0.95em; line-height: 1.4;">
+                                ${evt.message}
+                            </div>
+                            <div class="security-toast-details" style="background: rgba(255, 74, 74, 0.08); padding: 10px; border-radius: 6px; font-size: 0.85em; border-left: 3px solid #ff4a4a; line-height: 1.5; color: #eaeaea;">
+                                <strong style="color: #ff8c8c; display: block; margin-bottom: 4px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px;">Detalle de la Transacción Rechazada:</strong>
+                                🔹 <strong>Contrato:</strong> ${evt.id_contrato}<br>
+                                🔹 <strong>NIT:</strong> ${evt.nit}<br>
+                                🔹 <strong>Fecha:</strong> ${evt.fecha}<br>
+                                🔹 <strong>Valor:</strong> $${evt.valor}<br>
+                                🔹 <strong>Concepto Enviado:</strong> <em style="color: #ffd2d2;">"${evt.concepto || 'N/A'}"</em>
+                            </div>
+                            <button class="security-toast-btn" style="margin-top: 12px; font-weight: bold; background: rgba(255,74,74,0.2);" onclick="dismissBlocked('${evt.id}')">Descartar Alerta</button>
+                        </div>
+                    `;
+                    container.appendChild(toast);
+                }
+            });
+        }
+ 
+        async function dismissBlocked(eventId) {
+            try {
+                // Registrar el descarte local de inmediato para evitar re-renderizados de polling
+                dismissedBlockedIds.add(eventId);
+                currentBlockedIds.delete(eventId);
+                
+                // Realizar transición visual de desvanecimiento inmediata (Optimistic UI)
+                const toast = document.getElementById(`toast-${eventId}`);
+                if (toast) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(50px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }
+                
+                // Informar al backend asíncronamente
+                await fetch(`${API_URL}/blocked/dismiss/${eventId}`, { method: 'POST' });
+            } catch (e) {
+                console.error("Error dismissing blocked event", e);
+            }
+        }
+
+        function resetMonitor() {
+            activeSessionId = null;
+            activeInterruptId = null;
+            activeReviewType = null;
+            
+            document.getElementById('placeholder').style.display = 'flex';
+            document.getElementById('flow-display').style.display = 'none';
+            document.getElementById('process-badge').className = "badge badge-secondary";
+            document.getElementById('process-badge').innerText = "Inactivo";
+        }
+
+        // Selección de una tarea pendiente de la lista
+        function selectPendingSession(session) {
+            activeSessionId = session.session_id;
+            activeInterruptId = session.interrupt_id;
+            
+            const schemaProps = session.response_schema.properties || {};
+            const isExpiration = schemaProps.accion !== undefined;
+            activeReviewType = isExpiration ? 'vencimiento' : 'monto';
+            
+            // Forzar actualización visual en la lista izquierda
+            pollPendingSessions();
+
+            // Configurar el monitor derecho
+            document.getElementById('placeholder').style.display = 'none';
+            const flowDisplay = document.getElementById('flow-display');
+            flowDisplay.style.display = 'flex';
+            
+            const processBadge = document.getElementById('process-badge');
+            processBadge.className = "badge badge-warning";
+            processBadge.innerText = "Pausado (HITL)";
+
+            // Dibujar flujo de nodos del agente
+            let flowHtml = `
+                <div class="flow-node success-state">
+                    <div class="node-indicator">✓</div>
+                    <div class="node-info">
+                        <h4>Filtro GuardSecurity</h4>
+                        <p>Análisis de seguridad completado. Datos 100% limpios y seguros.</p>
+                    </div>
+                </div>
+                
+                <div class="flow-node active">
+                    <div class="node-indicator">⏳</div>
+                    <div class="node-info">
+                        <h4>CheckAutoApproval (${activeReviewType === 'monto' ? 'Desvío de Costo' : 'Margen de Expiración'})</h4>
+                        <p>Evaluación terminada. Se requiere intervención humana asíncrona para decidir la acción corporativa.</p>
+                    </div>
+                </div>
+            `;
+
+            if (activeReviewType === 'monto') {
+                flowHtml += `
+                    <div class="hitl-alert-panel" id="hitl-panel">
+                        <div class="hitl-alert-header">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <h3>Revisión Manual de Desvíos Requerida</h3>
+                        </div>
+                        <div class="hitl-message-box">${session.message}</div>
+                        
+                        <div class="switch-container">
+                            <span class="switch-label">¿Actualizar el monto de referencia del contrato en Sheets?</span>
+                            <label class="switch">
+                                <input type="checkbox" id="hitl-update-monto" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="color:white; font-size:11px; display:block; margin-bottom: 5px;">Comentarios de Justificación</label>
+                            <input type="text" id="hitl-comentario" class="form-control" placeholder="Ej. Incremento tarifario aprobado." style="background:rgba(0,0,0,0.4);">
+                        </div>
+
+                        <div class="decision-buttons">
+                            <button class="btn btn-approve" onclick="resolveMontoDecision(true)"><i class="fa-solid fa-thumbs-up"></i> Aprobar Gasto</button>
+                            <button class="btn btn-reject" onclick="resolveMontoDecision(false)"><i class="fa-solid fa-thumbs-down"></i> Rechazar Factura</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                flowHtml += `
+                    <div class="hitl-alert-panel" id="hitl-panel">
+                        <div class="hitl-alert-header">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <h3>Control de Vencimiento de Contrato</h3>
+                        </div>
+                        <div class="hitl-message-box">${session.message}</div>
+                        
+                        <div class="form-group">
+                            <label style="color:white; font-size:11px; display:block; margin-bottom: 5px;">Acción sobre el Contrato</label>
+                            <div class="vencimiento-actions">
+                                <div class="btn-action-tab selected" data-action="renovar" onclick="setVencimientoAction('renovar')">Renovar Contrato</div>
+                                <div class="btn-action-tab" data-action="inactivar" onclick="setVencimientoAction('inactivar')">Inactivar</div>
+                                <div class="btn-action-tab" data-action="no_hacer_nada" onclick="setVencimientoAction('no_hacer_nada')">No hacer nada</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="fecha-renovacion-container" style="margin-bottom: 20px;">
+                            <label style="color:white; font-size:11px; display:block; margin-bottom: 5px;">Nueva Fecha Fin de Prórroga</label>
+                            <input type="date" id="hitl-nueva-fecha" class="form-control" style="background:rgba(0,0,0,0.4);">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="resolveVencimientoDecision()"><i class="fa-solid fa-check"></i> Enviar Acción Administrativa</button>
+                    </div>
+                `;
+            }
+
+            flowDisplay.innerHTML = flowHtml;
+
+            // Configurar fecha de prórroga por defecto si aplica
+            if (isExpiration) {
+                const unAnioDespues = new Date();
+                unAnioDespues.setFullYear(unAnioDespues.getFullYear() + 1);
+                const dateInput = document.getElementById('hitl-nueva-fecha');
+                if (dateInput) {
+                    dateInput.value = unAnioDespues.toISOString().split('T')[0];
+                }
+            }
+        }
+
+        // Selección de acción en panel de vencimientos
+        function setVencimientoAction(action) {
+            selectedVencimientoAction = action;
+            const tabs = document.querySelectorAll('.btn-action-tab');
+            tabs.forEach(t => {
+                if (t.getAttribute('data-action') === action) {
+                    t.classList.add('selected');
+                } else {
+                    t.classList.remove('selected');
+                }
+            });
+
+            const fechaContainer = document.getElementById('fecha-renovacion-container');
+            if (action === 'renovar') {
+                fechaContainer.style.display = 'block';
+            } else {
+                fechaContainer.style.display = 'none';
+            }
+        }
+
+        // Enviar decisión de desvío de monto
+        async function resolveMontoDecision(aprobar) {
+            const decisionPayload = {
+                aprobar: aprobar,
+                actualizar_monto: document.getElementById('hitl-update-monto').checked,
+                comentario: document.getElementById('hitl-comentario').value.trim() || null
+            };
+
+            submitResume(decisionPayload);
+        }
+
+        // Enviar decisión de control de vencimiento
+        async function resolveVencimientoDecision() {
+            const decisionPayload = {
+                accion: selectedVencimientoAction,
+                nueva_fecha_fin: selectedVencimientoAction === "renovar" ? document.getElementById('hitl-nueva-fecha').value : null
+            };
+
+            submitResume(decisionPayload);
+        }
+
+        // Enviar reanudación al API de FastAPI (puerto 8080)
+        async function submitResume(decision) {
+            const hitlPanel = document.getElementById('hitl-panel');
+            hitlPanel.innerHTML = `<p style="text-align:center; padding: 20px; font-weight:600; color:var(--accent-secondary);"><i class="fa-solid fa-spinner fa-spin"></i> Reanudando flujo de ejecución del agente...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/resume`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: activeSessionId,
+                        interrupt_id: activeInterruptId,
+                        decision: decision
+                    })
+                });
+                
+                const result = await res.json();
+                
+                // Mostrar resultado de resolución en el monitor
+                handleWorkflowResult(result);
+                
+                // Forzar polling manual para actualizar la lista izquierda de inmediato
+                pollPendingSessions();
+                
+            } catch (err) {
+                console.error("Error reanudando sesión", err);
+                document.getElementById('process-badge').className = "badge badge-error";
+                document.getElementById('process-badge').innerText = "Error Reanudación";
+            }
+        }
+
+        // Procesar el resultado de la reanudación del agente
+        function handleWorkflowResult(result) {
+            const flowDisplay = document.getElementById('flow-display');
+            const processBadge = document.getElementById('process-badge');
+
+            if (result.status === "completed") {
+                const output = result.output || {};
+                const resType = output.result || 'success'; 
+                const detail = output.detail || "";
+                const data = output.data || {};
+
+                processBadge.className = "badge badge-success";
+                processBadge.innerText = "Resuelto";
+
+                const nodeClass = resType === "rejected" ? "error-state" : "success-state";
+                const indicator = resType === "rejected" ? "✗" : "✓";
+                
+                flowDisplay.innerHTML = `
+                    <div class="flow-node success-state">
+                        <div class="node-indicator">✓</div>
+                        <div class="node-info">
+                            <h4>Filtro GuardSecurity</h4>
+                            <p>Análisis de seguridad completado. Datos 100% seguros.</p>
+                        </div>
+                    </div>
+                    <div class="flow-node success-state">
+                        <div class="node-indicator">✓</div>
+                        <div class="node-info">
+                            <h4>CheckAutoApproval</h4>
+                            <p>Intervención manual procesada con éxito por el administrador.</p>
+                        </div>
+                    </div>
+                    <div class="flow-node ${nodeClass}">
+                        <div class="node-indicator">${indicator}</div>
+                        <div class="node-info">
+                            <h4>Procesamiento Administrativo Finalizado</h4>
+                            <p>Resultado Final: <strong>${resType.toUpperCase()}</strong>. ${detail}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Recargar tablas de Sheets de inmediato para ver reflejados los cambios
+                loadContracts();
+                loadHistory();
+
+                // Esperar 4 segundos antes de limpiar el monitor y volver al placeholder inactivo
+                setTimeout(() => {
+                    if (activeSessionId === result.session_id) {
+                        resetMonitor();
+                    }
+                }, 4000);
+
+            } else if (result.status === "suspended") {
+                // Si por alguna razón vuelve a suspenderse (ej: otro ciclo), volvemos a seleccionar la sesión
+                selectPendingSession(result);
+            }
+        }
+
+        // Inicializar datos al cargar
+        loadContracts();
+        
+        // Iniciar polling activo de tareas pendientes cada 3 segundos
+        pollPendingSessions();
+        setInterval(pollPendingSessions, 3000);
+    </script>
+</body>
+</html>
